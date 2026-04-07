@@ -9,7 +9,8 @@ import numpy as np
 import pandas as pd
 import yfinance as yf
 
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request, render_template, send_file
+import zipfile, io, os
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import TimeSeriesSplit
 from sklearn.metrics import accuracy_score, roc_auc_score, confusion_matrix, roc_curve
@@ -80,6 +81,28 @@ def build_features(df):
 @app.route("/")
 def index():
     return render_template("index.html")
+
+
+@app.route("/download")
+def download():
+    base = os.path.dirname(os.path.abspath(__file__))
+    buf = io.BytesIO()
+    include = [
+        "server.py", "stock_predictor.py", "app.py",
+        "requirements.txt", "Procfile", "render.yaml",
+        "templates/index.html",
+        "static/css/style.css",
+        "static/js/main.js",
+    ]
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+        for rel in include:
+            full = os.path.join(base, rel)
+            if os.path.exists(full):
+                zf.write(full, os.path.join("stock_predictor", rel))
+    buf.seek(0)
+    return send_file(buf, as_attachment=True,
+                     download_name="stock_predictor.zip",
+                     mimetype="application/zip")
 
 
 @app.route("/api/predict", methods=["POST"])
