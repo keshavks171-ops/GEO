@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stock Predictor · Random Forest</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- ── header ── -->
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">📈</span>
+        <span class="logo-text">StockPredictor<span class="logo-accent">RF</span></span>
+      </div>
+      <p class="tagline">Random Forest · Next-Day Direction Forecasting</p>
+    </div>
+  </header>
+
+  <!-- ── main ── -->
+  <main>
+
+    <!-- controls -->
+    <section class="card controls-card">
+      <h2 class="section-title">Configure & Run</h2>
+      <div class="controls-grid">
+
+        <div class="field">
+          <label for="ticker">Ticker Symbol</label>
+          <input id="ticker" type="text" value="AAPL" placeholder="e.g. AAPL, MSFT, TSLA" />
+        </div>
+
+        <div class="field">
+          <label for="start">Start Date</label>
+          <input id="start" type="date" value="2019-01-01" />
+        </div>
+
+        <div class="field">
+          <label for="end">End Date</label>
+          <input id="end" type="date" value="2024-12-31" />
+        </div>
+
+        <div class="field">
+          <label for="splits">CV Folds <span class="val-label" id="splits-val">5</span></label>
+          <input id="splits" type="range" min="2" max="10" value="5"
+                 oninput="document.getElementById('splits-val').textContent=this.value" />
+        </div>
+
+        <div class="field">
+          <label for="trees">Trees <span class="val-label" id="trees-val">300</span></label>
+          <input id="trees" type="range" min="50" max="1000" value="300" step="50"
+                 oninput="document.getElementById('trees-val').textContent=this.value" />
+        </div>
+
+        <div class="field run-field">
+          <button id="run-btn" onclick="runPrediction()">
+            <span id="btn-text">🚀 Run Prediction</span>
+            <span id="btn-spinner" class="spinner hidden"></span>
+          </button>
+        </div>
+
+      </div>
+      <div id="error-msg" class="error-msg hidden"></div>
+    </section>
+
+    <!-- loading overlay -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+      <div class="loading-box">
+        <div class="big-spinner"></div>
+        <p id="loading-text">Downloading data…</p>
+      </div>
+    </div>
+
+    <!-- results (hidden until run) -->
+    <div id="results" class="hidden">
+
+      <!-- prediction banner -->
+      <section class="card prediction-banner" id="banner">
+        <div class="banner-label">Next-Day Prediction</div>
+        <div class="banner-direction" id="banner-direction">—</div>
+        <div class="banner-metrics">
+          <div class="bm">
+            <span class="bm-label">Confidence</span>
+            <span class="bm-value" id="bm-confidence">—</span>
+          </div>
+          <div class="bm">
+            <span class="bm-label">P(UP)</span>
+            <span class="bm-value" id="bm-pup">—</span>
+          </div>
+          <div class="bm">
+            <span class="bm-label">P(DOWN)</span>
+            <span class="bm-value" id="bm-pdown">—</span>
+          </div>
+          <div class="bm">
+            <span class="bm-label">Trading Days</span>
+            <span class="bm-value" id="bm-rows">—</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- overall metrics -->
+      <div class="metrics-row">
+        <div class="card metric-card">
+          <div class="metric-label">Overall Accuracy</div>
+          <div class="metric-value" id="m-accuracy">—</div>
+        </div>
+        <div class="card metric-card">
+          <div class="metric-label">Overall ROC-AUC</div>
+          <div class="metric-value" id="m-auc">—</div>
+        </div>
+      </div>
+
+      <!-- fold table -->
+      <section class="card">
+        <h2 class="section-title">Cross-Validation Folds</h2>
+        <div class="table-wrap">
+          <table id="fold-table">
+            <thead>
+              <tr><th>Fold</th><th>Accuracy</th><th>ROC-AUC</th></tr>
+            </thead>
+            <tbody id="fold-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- charts row 1 -->
+      <div class="charts-row">
+        <section class="card chart-card">
+          <h2 class="section-title">Price History (1 Year)</h2>
+          <canvas id="price-chart"></canvas>
+        </section>
+        <section class="card chart-card">
+          <h2 class="section-title">Confusion Matrix</h2>
+          <canvas id="cm-chart"></canvas>
+        </section>
+      </div>
+
+      <!-- charts row 2 -->
+      <div class="charts-row">
+        <section class="card chart-card">
+          <h2 class="section-title">ROC Curve</h2>
+          <canvas id="roc-chart"></canvas>
+        </section>
+        <section class="card chart-card">
+          <h2 class="section-title">Top 15 Feature Importances</h2>
+          <canvas id="fi-chart"></canvas>
+        </section>
+      </div>
+
+    </div><!-- /results -->
+
+  </main>
+
+  <footer>
+    <p>Data: Yahoo Finance &nbsp;·&nbsp; Model: scikit-learn RandomForestClassifier</p>
+    <p class="disclaimer">⚠️ For educational purposes only. Not financial advice.</p>
+  </footer>
+
+  <script src="/static/js/main.js"></script>
+</body>
+</html>
