@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Log Analysis Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Log Analysis Dashboard</h1>
+    <div class="controls">
+      <button id="load-sample" type="button">Load sample</button>
+      <label class="file-btn">
+        Upload log
+        <input id="file-input" type="file" accept=".log,.txt">
+      </label>
+      <button id="analyze-text" type="button">Analyze pasted text</button>
+    </div>
+  </header>
+
+  <section class="paste">
+    <textarea id="log-text" placeholder="Paste raw log lines here (Apache/nginx access or '<iso-ts> LEVEL message')"></textarea>
+  </section>
+
+  <section id="summary" class="cards"></section>
+
+  <section class="charts">
+    <div class="chart-box"><canvas id="rate-chart"></canvas></div>
+    <div class="chart-box"><canvas id="level-chart"></canvas></div>
+  </section>
+
+  <section class="grid">
+    <div class="panel">
+      <h2>Anomalies</h2>
+      <table id="anomaly-table">
+        <thead><tr><th>Time</th><th>Kind</th><th>Score</th><th>Detail</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="panel">
+      <h2>Top paths</h2>
+      <table id="paths-table"><tbody></tbody></table>
+      <h2>Top IPs</h2>
+      <table id="ips-table"><tbody></tbody></table>
+    </div>
+  </section>
+
+  <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+</body>
+</html>
